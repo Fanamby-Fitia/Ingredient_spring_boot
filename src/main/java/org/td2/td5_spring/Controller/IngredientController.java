@@ -42,15 +42,27 @@ public class IngredientController {
     @GetMapping("/{id}/stock")
     public ResponseEntity<Double> getStock(
             @PathVariable Long id,
-            @RequestParam String at,
-            @RequestParam String unit
+            @RequestParam(required = false) String at,
+            @RequestParam(required = false) String unit
     ) {
+        if (at == null || at.isEmpty() || unit == null || unit.isEmpty()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(null);
+        }
         try {
             Double stock = service.stock(id, at, unit);
+            if (stock == null) {
+                return ResponseEntity.notFound().build();
+            }
             return ResponseEntity.ok(stock);
+
         } catch (SQLException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(500).build();
         }
     }
-
 }
