@@ -5,55 +5,52 @@ import org.springframework.web.bind.annotation.*;
 import org.td2.td5_spring.Entity.Ingredient;
 import org.td2.td5_spring.Service.IngredientService;
 
+import java.sql.SQLException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/ingredients")
 public class IngredientController {
 
-    private IngredientService service;
+    private final IngredientService service;
 
     public IngredientController(IngredientService service) {
         this.service = service;
     }
 
     @GetMapping
-    public List<Ingredient> getAll() {
-        return service.getAll();
+    public ResponseEntity<List<Ingredient>> getAll() {
+        try {
+            List<Ingredient> list = service.getAll();
+            return ResponseEntity.ok(list);
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body(null);
+        }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id) {
-
-        Ingredient ing = service.getById(id);
-
-        if (ing == null) {
-            return ResponseEntity.status(404)
-                    .body("Ingredient.id=" + id + " is not found");
+    public ResponseEntity<Ingredient> getOne(@PathVariable Long id) {
+        try {
+            Ingredient ing = service.getOne(id);
+            if (ing != null) return ResponseEntity.ok(ing);
+            return ResponseEntity.notFound().build();
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).build();
         }
-
-        return ResponseEntity.ok(ing);
     }
 
     @GetMapping("/{id}/stock")
-    public ResponseEntity<?> getStock(
+    public ResponseEntity<Double> getStock(
             @PathVariable Long id,
-            @RequestParam(required = false) String at,
-            @RequestParam(required = false) String unit
+            @RequestParam String at,
+            @RequestParam String unit
     ) {
-
-        if (at == null || unit == null) {
-            return ResponseEntity.badRequest()
-                    .body("Either mandatory query parameter `at` or `unit` is not provided.");
+        try {
+            Double stock = service.stock(id, at, unit);
+            return ResponseEntity.ok(stock);
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).build();
         }
-
-        Ingredient ing = service.getById(id);
-
-        if (ing == null) {
-            return ResponseEntity.status(404)
-                    .body("Ingredient.id=" + id + " is not found");
-        }
-
-        return ResponseEntity.ok(service.getStock(id, at, unit));
     }
+
 }

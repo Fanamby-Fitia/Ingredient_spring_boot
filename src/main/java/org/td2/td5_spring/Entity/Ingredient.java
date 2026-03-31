@@ -3,10 +3,10 @@ package org.td2.td5_spring.Entity;
 public class Ingredient {
     private Long id;
     private String name;
-    private double price;
+    private Double price;
     private String category;
 
-    public Ingredient(Long id, String name, double price, String category) {
+    public Ingredient(Long id, String name, Double price, String category) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -33,11 +33,11 @@ public class Ingredient {
         this.name = name;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 

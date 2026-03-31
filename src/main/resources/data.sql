@@ -6,9 +6,9 @@ INSERT INTO ingredient(name, category, price) VALUES
                                                   ('Riz', 'Cereale', 3.0);
 
 -- DISHES
-INSERT INTO dish(name, price) VALUES
-                                  ('Pizza', 20.0),
-                                  ('Poulet Riz', 15.0);
+INSERT INTO dish(name, category, price) VALUES
+                                  ('Pizza', 'Plat principal', 20.0),
+                                  ('Poulet Riz', 'Plat principal', 15.0);
 
 -- RELATIONS
 INSERT INTO dish_ingredient(dish_id, ingredient_id) VALUES

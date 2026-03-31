@@ -6,7 +6,9 @@ import org.td2.td5_spring.Entity.Ingredient;
 import org.td2.td5_spring.Repository.DishRepository;
 import org.td2.td5_spring.Repository.ingredientRepository;
 
+import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DishService {
@@ -19,21 +21,37 @@ public class DishService {
         this.ingRepo = ingRepo;
     }
 
-    public List<Dish> getAll() {
+    public List<Dish> getAll() throws SQLException {
         return dishRepo.findAll();
     }
 
-    public boolean exists(Long id) {
+    public List<Dish> getFiltered(Double priceUnder, Double priceOver, String name) throws SQLException {
+        return getAll().stream()
+                .filter(d -> priceUnder == null || d.getPrice() < priceUnder)
+                .filter(d -> priceOver == null || d.getPrice() > priceOver)
+                .filter(d -> name == null || d.getName().toLowerCase().contains(name.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    public boolean exists(Long id) throws SQLException {
         return dishRepo.existsById(id);
     }
 
-    public void updateIngredients(Long dishId, List<Ingredient> ingredients) {
+    public boolean existsByName(String name) throws SQLException {
+        return dishRepo.existsByName(name);
+    }
 
+    public void updateIngredients(Long dishId, List<Ingredient> ingredients) throws SQLException {
         dishRepo.deleteIngredients(dishId);
 
-        ingredients.stream()
-                .filter(i -> i.getId() != null)
-                .filter(i -> ingRepo.existsById(i.getId()))
-                .forEach(i -> dishRepo.addIngredient(dishId, i.getId()));
+        for (Ingredient i : ingredients) {
+            if (i.getId() != null && ingRepo.existsById(i.getId())) {
+                dishRepo.addIngredient(dishId, i.getId());
+            }
+        }
+    }
+
+    public Dish create(Dish dish) throws SQLException {
+        return dishRepo.save(dish);
     }
 }

@@ -2,9 +2,9 @@ package org.td2.td5_spring.Entity;
 
 public class StockMouvement {
     private String unit;
-    private double value;
+    private Double value;
 
-    public StockMouvement(String unit, double value) {
+    public StockMouvement(String unit, Double value) {
         this.unit = unit;
         this.value = value;
     }
@@ -25,7 +25,7 @@ public class StockMouvement {
         return value;
     }
 
-    public void setValue(double value) {
+    public void setValue(Double value) {
         this.value = value;
     }
 }

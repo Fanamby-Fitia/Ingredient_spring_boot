@@ -8,6 +8,7 @@ CREATE TABLE ingredient (
 CREATE TABLE dish (
                       id SERIAL PRIMARY KEY,
                       name VARCHAR(100),
+                      category VARCHAR(50),
                       price DOUBLE PRECISION
 );
 
