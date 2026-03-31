@@ -5,13 +5,14 @@ import org.td2.td5_spring.Entity.Ingredient;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class ingredientRepository {
 
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     public ingredientRepository(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -42,6 +43,7 @@ public class ingredientRepository {
         String sql = "SELECT id, name, category, price FROM ingredient WHERE id = ?";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setLong(1, id);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -63,7 +65,9 @@ public class ingredientRepository {
         String sql = "SELECT COUNT(*) FROM ingredient WHERE id = ?";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setLong(1, id);
+
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() && rs.getInt(1) > 0;
             }
@@ -73,7 +77,14 @@ public class ingredientRepository {
     public double getStock(Long id, String at, String unit) throws SQLException {
         String sql = "SELECT COALESCE(SUM(quantity),0) FROM stock_movement " +
                 "WHERE ingredient_id=? AND unit=? AND movement_date<=?";
-        Timestamp timestamp = Timestamp.valueOf(at + " 00:00:00");
+
+        Timestamp timestamp;
+        try {
+            LocalDate date = LocalDate.parse(at);
+            timestamp = Timestamp.valueOf(date.atTime(23, 59, 59)); // fin de journée
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Le format de la date doit être yyyy-MM-dd", e);
+        }
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
